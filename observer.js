@@ -10,7 +10,7 @@
 var chalk = require('chalk');
 const puppeteer = require('puppeteer');
 var Discord = require('discord.js');
-const token = 'NjE0NjM0NDk3OTgzMzgxNTA0.XWCWPA.AUBXPq7kosuFsFSIczFRkKzwBmU';
+const token = process.env.SECRET;
 const client = new Discord.Client();
 let annon = undefined;
 
