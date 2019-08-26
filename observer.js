@@ -10,7 +10,7 @@
 var chalk = require('chalk');
 const puppeteer = require('puppeteer');
 var Discord = require('discord.js');
-const token = 'BOT_TOKEN';
+const token = 'NjE0NjM0NDk3OTgzMzgxNTA0.XWCWPA.AUBXPq7kosuFsFSIczFRkKzwBmU';
 const client = new Discord.Client();
 let annon = undefined;
 
@@ -22,7 +22,7 @@ let annon = undefined;
         console.log(chalk.blue('[INFO] Observer starting...'));
 
         let browser = await puppeteer.launch({
-            headless: false,
+            headless: true,
             slowMo: 00
         });
 
@@ -37,8 +37,8 @@ let annon = undefined;
         setInterval(async () => {
 
             latestDM = await page.evaluate(async () => {
-                if (document.getElementById('id-9') !== null) document.getElementById('id-9').value = "EMAIL_ADDRESS";
-                if (document.getElementById('id-10') !== null) document.getElementById('id-10').value = "PASSWORD";
+                if (document.getElementById('id-9') !== null) document.getElementById('id-9').value = "synthHusk@gmail.com";
+                if (document.getElementById('id-10') !== null) document.getElementById('id-10').value = "dndbeyond";
 
                 getCircularReplacer = () => {
                     const seen = new WeakSet();
@@ -74,25 +74,20 @@ let annon = undefined;
                     if (typeof obj !== "undefined") return JSON.stringify(obj.jsfy, getCircularReplacer());
                 }
             })
-            annon = latestDM;
+            if(typeof latestDM !== "undefined" && latestDM.startsWith(`"Annou`)) {
+                annon = latestDM;
+            }
         }, 1000);
 
         setInterval(() => {
             if (typeof annon !== "undefined") {
                 if (annon !== preAnnon) {
-                    run = setInterval(sendAnnouncment);
+                    client.channels.find(x => x.name === 'testing').send("@everyone" + "```" + annon.split("Announcement:")[1].split('"')[0] + "```");
+                    console.log(chalk.blue('[INFO] Announcement Sent'));
                 }
                 preAnnon = annon;
             }
 
-        }, 1000);
-
-        sendAnnouncment = () => {
-            client.channels.find(x => x.name === 'testing').send("@everyone" + "```" + annon.split("Announcement:")[1].split('"')[0] + "```");
-            console.log(chalk.blue('[INFO] Announcement Sent'));
-            clearInterval(run)
-        }
-
+        }, 100);
     })
 })();
-
