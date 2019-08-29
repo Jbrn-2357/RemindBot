@@ -10,20 +10,41 @@
 var chalk = require('chalk');
 const puppeteer = require('puppeteer');
 var Discord = require('discord.js');
-const token = process.env.SECRET;
 const client = new Discord.Client();
+const http = require('http');
+const express = require('express');
+const fs = require('fs');
+const app = express();
+
+let sentMessages = [];
+
+setInterval(()=>{
+  fs.readFile('./previous.txt', (err, data)=>{
+    sentMessages = eval('"[' + data + ']"');
+  })
+}, 50)
+
 let annon = undefined;
 
-(observer = async () => {
-    client.login(token);
+//keep bot up
+app.get("/", (request, response) => {
+  console.log(Date.now() + " Ping Received");
+  response.sendStatus(200);
+});
+app.listen(process.env.PORT);
+setInterval(() => {
+  http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
+}, 258000);
+
+(async () => {
+    client.login(process.env.SECRET);
 
     client.on('ready', async () => {
 
         console.log(chalk.blue('[INFO] Observer starting...'));
 
         let browser = await puppeteer.launch({
-            headless: true,
-            slowMo: 00
+            args: ['--no-sandbox']
         });
 
         let page = await browser.newPage();
@@ -37,8 +58,8 @@ let annon = undefined;
         setInterval(async () => {
 
             latestDM = await page.evaluate(async () => {
-                if (document.getElementById('id-9') !== null) document.getElementById('id-9').value = "synthHusk@gmail.com";
-                if (document.getElementById('id-10') !== null) document.getElementById('id-10').value = "dndbeyond";
+                if (document.getElementById('id-9') !== null) document.getElementById('id-9').value = "EMAIL";
+                if (document.getElementById('id-10') !== null) document.getElementById('id-10').value = "PASSWORD";
 
                 getCircularReplacer = () => {
                     const seen = new WeakSet();
@@ -81,12 +102,16 @@ let annon = undefined;
 
         setInterval(() => {
             if (typeof annon !== "undefined") {
-                if (annon !== preAnnon) {
+                if (annon !== preAnnon && !sentMessages.includes(annon.split("Announcement:")[1].split('"')[0])) {
                     client.channels.find(x => x.name === 'testing').send("@everyone" + "```" + annon.split("Announcement:")[1].split('"')[0] + "```");
                     console.log(chalk.blue('[INFO] Announcement Sent'));
+                    fs.appendFile('./previous.txt', "`" + annon.split("Announcement:")[1].split('"')[0] + "`" + ",");
                 }
                 preAnnon = annon;
             }
+          if(sentMessages.length > 30) {
+            sentMessages = [];
+          }
 
         }, 100);
     })
